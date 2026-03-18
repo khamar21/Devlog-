@@ -5,11 +5,17 @@ import '../../widgets/gold_bottom_nav.dart';
 import '../dashboard/dashboard_page.dart';
 import '../tasks/tasks_list_page.dart';
 import '../profile/profile_page.dart';
-import '../../data/api_service.dart';
 
 class ProjectDetailGoldPage extends StatefulWidget {
-  const ProjectDetailGoldPage({super.key});
+  const ProjectDetailGoldPage({
+    super.key,
+    this.projectProgress = 0.75,
+    this.progressLabel = 'Project Progress',
+  });
   static const routeName = '/project-detail-gold';
+
+  final double projectProgress;
+  final String progressLabel;
 
   @override
   State<ProjectDetailGoldPage> createState() => _ProjectDetailGoldPageState();
@@ -131,6 +137,7 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
   Widget build(BuildContext context) {
     final accent = const Color(0xFFF4C430);
     final accentDark = const Color(0xFFD4A017);
+    final normalizedProgress = widget.projectProgress.clamp(0.0, 1.0);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -170,10 +177,19 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Profile header
-              _ProjectHeaderCard(accent: accent, accentDark: accentDark),
+              _ProjectHeaderCard(
+                accent: accent,
+                accentDark: accentDark,
+                progress: normalizedProgress,
+              ),
               const SizedBox(height: 24),
               // Progress chart
-              _ProgressChart(accent: accent, accentDark: accentDark),
+              _ProgressChart(
+                accent: accent,
+                accentDark: accentDark,
+                progress: normalizedProgress,
+                progressLabel: widget.progressLabel,
+              ),
               const SizedBox(height: 24),
               // Time tracking cards
               Row(
@@ -260,7 +276,13 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
 class _ProjectHeaderCard extends StatelessWidget {
   final Color accent;
   final Color accentDark;
-  const _ProjectHeaderCard({required this.accent, required this.accentDark});
+  final double progress;
+
+  const _ProjectHeaderCard({
+    required this.accent,
+    required this.accentDark,
+    required this.progress,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -344,7 +366,7 @@ class _ProjectHeaderCard extends StatelessWidget {
                 ),
               ),
               Text(
-                "75%",
+                '${(progress * 100).round()}%',
                 style: GoogleFonts.inter(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -357,7 +379,7 @@ class _ProjectHeaderCard extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: LinearProgressIndicator(
-              value: 0.75,
+              value: progress,
               minHeight: 8,
               backgroundColor: Colors.white.withOpacity(0.3),
               valueColor: const AlwaysStoppedAnimation(Colors.white),
@@ -398,7 +420,15 @@ class _ChipTag extends StatelessWidget {
 class _ProgressChart extends StatelessWidget {
   final Color accent;
   final Color accentDark;
-  const _ProgressChart({required this.accent, required this.accentDark});
+  final double progress;
+  final String progressLabel;
+
+  const _ProgressChart({
+    required this.accent,
+    required this.accentDark,
+    required this.progress,
+    required this.progressLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -413,7 +443,7 @@ class _ProgressChart extends StatelessWidget {
               width: 140,
               height: 140,
               child: CircularProgressIndicator(
-                value: 0.75,
+                value: progress,
                 strokeWidth: 14,
                 valueColor: AlwaysStoppedAnimation(accentDark),
                 backgroundColor: accent.withOpacity(0.15),
@@ -424,7 +454,7 @@ class _ProgressChart extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  "75%",
+                  '${(progress * 100).round()}%',
                   style: GoogleFonts.inter(
                     fontSize: 32,
                     fontWeight: FontWeight.w800,
@@ -434,7 +464,7 @@ class _ProgressChart extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "Project Progress",
+                  progressLabel,
                   style: GoogleFonts.inter(
                     fontSize: 13,
                     color: const Color(0xFF64748B),
