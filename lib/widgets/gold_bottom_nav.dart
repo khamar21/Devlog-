@@ -32,7 +32,7 @@ class GoldBottomNav extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: accent.withOpacity(0.45),
+            color: accent.withValues(alpha: 0.45),
             blurRadius: 18,
             offset: const Offset(0, -6),
           ),
@@ -53,7 +53,7 @@ class GoldBottomNav extends StatelessWidget {
                   size: 26,
                   color: active
                       ? const Color(0xFF0F172A)
-                      : const Color(0xFF0F172A).withOpacity(0.5),
+                      : const Color(0xFF0F172A).withValues(alpha: 0.5),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -63,7 +63,7 @@ class GoldBottomNav extends StatelessWidget {
                     fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                     color: active
                         ? const Color(0xFF0F172A)
-                        : const Color(0xFF0F172A).withOpacity(0.6),
+                        : const Color(0xFF0F172A).withValues(alpha: 0.6),
                   ),
                 ),
               ],

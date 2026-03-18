@@ -297,7 +297,7 @@ class _ProjectHeaderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: accent.withOpacity(0.35),
+            color: accent.withValues(alpha: 0.35),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -312,7 +312,7 @@ class _ProjectHeaderCard extends StatelessWidget {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.folder_open,
@@ -337,7 +337,7 @@ class _ProjectHeaderCard extends StatelessWidget {
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white.withOpacity(0.85),
+                        color: Colors.white.withValues(alpha: 0.85),
                       ),
                     ),
                   ],
@@ -348,9 +348,9 @@ class _ProjectHeaderCard extends StatelessWidget {
           const SizedBox(height: 20),
           Row(
             children: [
-              _ChipTag(label: "Backend", color: Colors.white.withOpacity(0.3)),
+              _ChipTag(label: "Backend", color: Colors.white.withValues(alpha: 0.3)),
               const SizedBox(width: 8),
-              _ChipTag(label: "API", color: Colors.white.withOpacity(0.3)),
+              _ChipTag(label: "API", color: Colors.white.withValues(alpha: 0.3)),
             ],
           ),
           const SizedBox(height: 16),
@@ -381,7 +381,7 @@ class _ProjectHeaderCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 8,
-              backgroundColor: Colors.white.withOpacity(0.3),
+              backgroundColor: Colors.white.withValues(alpha: 0.3),
               valueColor: const AlwaysStoppedAnimation(Colors.white),
             ),
           ),
@@ -446,7 +446,7 @@ class _ProgressChart extends StatelessWidget {
                 value: progress,
                 strokeWidth: 14,
                 valueColor: AlwaysStoppedAnimation(accentDark),
-                backgroundColor: accent.withOpacity(0.15),
+                backgroundColor: accent.withValues(alpha: 0.15),
                 strokeCap: StrokeCap.round,
               ),
             ),
@@ -500,10 +500,10 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -515,7 +515,7 @@ class _StatCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -564,7 +564,7 @@ class _TimelineRow extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.12),
+            color: color.withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 20),

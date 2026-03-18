@@ -136,7 +136,7 @@ class _TasksListPageState extends State<TasksListPage> {
           ),
           boxShadow: [
             BoxShadow(
-              color: accent.withOpacity(0.4),
+              color: accent.withValues(alpha: 0.4),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -185,13 +185,13 @@ class _TasksListPageState extends State<TasksListPage> {
           color: isSelected ? accent : const Color(0xFFFEFCE8),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? accent : accent.withOpacity(0.3),
+            color: isSelected ? accent : accent.withValues(alpha: 0.3),
             width: 1.5,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: accent.withOpacity(0.3),
+                    color: accent.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -251,10 +251,10 @@ class _TaskCardState extends State<_TaskCard> {
       decoration: BoxDecoration(
         color: const Color(0xFFFEFCE8),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: widget.accent.withOpacity(0.3), width: 1.4),
+        border: Border.all(color: widget.accent.withValues(alpha: 0.3), width: 1.4),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -298,7 +298,7 @@ class _TaskCardState extends State<_TaskCard> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: priorityColor.withOpacity(0.1),
+                  color: priorityColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(

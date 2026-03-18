@@ -23,14 +23,13 @@ class _TaskCard extends StatefulWidget {
   final bool initialChecked;
 
   const _TaskCard({
-    Key? key,
     required this.hours,
     required this.minutes,
     required this.title,
     required this.due,
     required this.accent,
     this.initialChecked = false,
-  }) : super(key: key);
+  });
 
   @override
   State<_TaskCard> createState() => _TaskCardState();
@@ -54,7 +53,7 @@ class _TaskCardState extends State<_TaskCard> {
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: widget.accent.withOpacity(0.2),
+          color: widget.accent.withValues(alpha: 0.2),
           width: 1.5,
         ),
       ),
@@ -95,7 +94,8 @@ class _TaskCardState extends State<_TaskCard> {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                    const Icon(Icons.calendar_today,
+                        size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
                     Text(
                       widget.due,
@@ -143,8 +143,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = const Color(0xFFF4C430);
-    final accentDark = const Color(0xFFD4A017);
+    final accent =  Color(0xFFF4C430);
+    final accentDark =Color(0xFFD4A017);
     final textTheme = GoogleFonts.interTextTheme();
 
     return Scaffold(
@@ -168,25 +168,20 @@ class _DashboardPageState extends State<DashboardPage> {
             children: [
               _ProfileCard(accent: accent, accentDark: accentDark),
               const SizedBox(height: 24),
-
               _DateSelector(
                 dates: _dates,
                 selected: _selectedIndex,
                 onSelect: (i) => setState(() => _selectedIndex = i),
                 accent: accent,
               ),
-
               const SizedBox(height: 24),
-
               _WeeklySummaryCardGold(
                 accent: accent,
                 accentDark: accentDark,
                 hoursTextOverride:
                     _weeklyHours != null ? "${_weeklyHours}h" : "--",
               ),
-
               const SizedBox(height: 32),
-
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -197,9 +192,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
-
               _TaskCard(
                 hours: 2,
                 minutes: 12,
@@ -208,9 +201,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 accent: accent,
                 initialChecked: true,
               ),
-
               const SizedBox(height: 16),
-
               _TaskCard(
                 hours: 1,
                 minutes: 45,
@@ -295,7 +286,15 @@ class _DateSelector extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][date.weekday - 1],
+                    [
+                      "Mon",
+                      "Tue",
+                      "Wed",
+                      "Thu",
+                      "Fri",
+                      "Sat",
+                      "Sun"
+                    ][date.weekday - 1],
                     style: textTheme.bodySmall?.copyWith(
                       color: isSelected ? Colors.white70 : Colors.grey[700],
                     ),
@@ -310,7 +309,7 @@ class _DateSelector extends StatelessWidget {
   }
 }
 
-class   _ProfileCard extends StatelessWidget {
+class _ProfileCard extends StatelessWidget {
   const _ProfileCard({
     required this.accent,
     required this.accentDark,
@@ -330,7 +329,7 @@ class   _ProfileCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: accentDark.withOpacity(0.4),
+            color: accentDark.withValues(alpha: 0.4),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -340,7 +339,8 @@ class   _ProfileCard extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 30,
-            backgroundImage: AssetImage('assets/images/profile_placeholder.png'),
+            backgroundImage:
+                AssetImage('assets/images/profile_placeholder.png'),
           ),
           const SizedBox(width: 16),
           Column(
@@ -386,9 +386,9 @@ class _WeeklySummaryCardGold extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: accent.withOpacity(0.15),
+        color: accent.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accentDark.withOpacity(0.2), width: 1.5),
+        border: Border.all(color: accentDark.withValues(alpha: 0.2), width: 1.5),
       ),
       child: Row(
         children: [
@@ -409,7 +409,7 @@ class _WeeklySummaryCardGold extends StatelessWidget {
                 Text(
                   "Total hours logged this week",
                   style: textTheme.bodyMedium?.copyWith(
-                    color: accentDark.withOpacity(0.7),
+                    color: accentDark.withValues(alpha: 0.7),
                   ),
                 ),
               ],
