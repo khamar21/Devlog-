@@ -11,26 +11,31 @@ class ProjectDetailGoldPage extends StatefulWidget {
     super.key,
     this.projectProgress = 0.75,
     this.progressLabel = 'Project Progress',
+    this.projectName = 'Project',
+    this.projectDue = 'TBD',
+    this.projectTags = const ['General'],
+    this.totalHours = 0,
+    this.totalTasks = 0,
   });
   static const routeName = '/project-detail-gold';
 
   final double projectProgress;
   final String progressLabel;
+  final String projectName;
+  final String projectDue;
+  final List<String> projectTags;
+  final int totalHours;
+  final int totalTasks;
 
   @override
   State<ProjectDetailGoldPage> createState() => _ProjectDetailGoldPageState();
 }
 
 class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
-  final List<Map<String, String>> tasks = [
-    {"title": "Authentication endpoints finalized", "time": "Today, 10:30 AM"},
-    {"title": "Documentation updated", "time": "Yesterday, 4:15 PM"},
-    {"title": "API deployed to staging", "time": "2 days ago"},
-  ];
+  late List<Map<String, String>> tasks = [];
 
-  // TODO: receive/set actual projectId and userId via constructor/route
-  final String _projectId = 'CURRENT_PROJECT_ID';
-  final String? _userId = 'CURRENT_USER_ID';
+  final String _projectId = 'dynamic_project_id';
+  final String? _userId = 'dynamic_user_id';
 
   @override
   void initState() {
@@ -181,6 +186,9 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
                 accent: accent,
                 accentDark: accentDark,
                 progress: normalizedProgress,
+                projectName: widget.projectName,
+                projectDue: widget.projectDue,
+                projectTags: widget.projectTags,
               ),
               const SizedBox(height: 24),
               // Progress chart
@@ -198,7 +206,7 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
                     child: _StatCard(
                       icon: Icons.timer_outlined,
                       label: "Total Hours",
-                      value: "120h",
+                      value: "${widget.totalHours}h",
                       color: accent,
                     ),
                   ),
@@ -207,7 +215,7 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
                     child: _StatCard(
                       icon: Icons.task_alt,
                       label: "Tasks Done",
-                      value: "${tasks.length}/17",
+                      value: "${tasks.length}/${widget.totalTasks}",
                       color: const Color(0xFF22C55E),
                     ),
                   ),
@@ -277,11 +285,17 @@ class _ProjectHeaderCard extends StatelessWidget {
   final Color accent;
   final Color accentDark;
   final double progress;
+  final String projectName;
+  final String projectDue;
+  final List<String> projectTags;
 
   const _ProjectHeaderCard({
     required this.accent,
     required this.accentDark,
     required this.progress,
+    required this.projectName,
+    required this.projectDue,
+    required this.projectTags,
   });
 
   @override
@@ -324,7 +338,7 @@ class _ProjectHeaderCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Phoenix API Refactor",
+                      projectName,
                       style: GoogleFonts.inter(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -333,7 +347,7 @@ class _ProjectHeaderCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "Due: March 15, 2024",
+                      "Due: $projectDue",
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
@@ -348,9 +362,11 @@ class _ProjectHeaderCard extends StatelessWidget {
           const SizedBox(height: 20),
           Row(
             children: [
-              _ChipTag(label: "Backend", color: Colors.white.withValues(alpha: 0.3)),
-              const SizedBox(width: 8),
-              _ChipTag(label: "API", color: Colors.white.withValues(alpha: 0.3)),
+              ...projectTags.map((tag) => Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: _ChipTag(
+                        label: tag, color: Colors.white.withValues(alpha: 0.3)),
+                  )),
             ],
           ),
           const SizedBox(height: 16),
