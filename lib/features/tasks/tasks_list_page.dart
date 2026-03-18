@@ -18,8 +18,8 @@ class _TasksListPageState extends State<TasksListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = const Color(0xFFF4C430);
-    final accentDark = const Color(0xFFD4A017);
+    const accent = Color(0xFFF4C430);
+    const accentDark = Color(0xFFD4A017);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -251,7 +251,8 @@ class _TaskCardState extends State<_TaskCard> {
       decoration: BoxDecoration(
         color: const Color(0xFFFEFCE8),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: widget.accent.withValues(alpha: 0.3), width: 1.4),
+        border:
+            Border.all(color: widget.accent.withValues(alpha: 0.3), width: 1.4),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
