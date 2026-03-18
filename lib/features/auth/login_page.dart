@@ -1,21 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/api_service.dart';
 import '../dashboard/dashboard_page.dart';
 import 'signup_page.dart';
 
-class LoginPage extends StatefulWidget {
+@immutable
+class LoginFormState {
+  const LoginFormState({
+    this.loading = false,
+    this.showPassword = false,
+    this.emailError,
+    this.passError,
+  });
+
+  final bool loading;
+  final bool showPassword;
+  final String? emailError;
+  final String? passError;
+
+  LoginFormState copyWith({
+    bool? loading,
+    bool? showPassword,
+    String? emailError,
+    String? passError,
+    bool clearEmailError = false,
+    bool clearPassError = false,
+  }) {
+    return LoginFormState(
+      loading: loading ?? this.loading,
+      showPassword: showPassword ?? this.showPassword,
+      emailError: clearEmailError ? null : (emailError ?? this.emailError),
+      passError: clearPassError ? null : (passError ?? this.passError),
+    );
+  }
+}
+
+class LoginFormController extends StateNotifier<LoginFormState> {
+  LoginFormController() : super(const LoginFormState());
+
+  void toggleShowPassword() {
+    state = state.copyWith(showPassword: !state.showPassword);
+  }
+
+  void setLoading(bool loading) {
+    state = state.copyWith(loading: loading);
+  }
+
+  void clearErrors() {
+    state = state.copyWith(clearEmailError: true, clearPassError: true);
+  }
+
+  bool validate(String email, String password) {
+    final trimmedEmail = email.trim();
+    final trimmedPassword = password.trim();
+
+    final emailError = trimmedEmail.isEmpty ? 'Please enter your email' : null;
+    final passError =
+        trimmedPassword.isEmpty ? 'Please enter your password' : null;
+
+    state = state.copyWith(emailError: emailError, passError: passError);
+    return emailError == null && passError == null;
+  }
+}
+
+final loginFormProvider =
+    StateNotifierProvider.autoDispose<LoginFormController, LoginFormState>(
+  (ref) => LoginFormController(),
+);
+
+class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
   static const routeName = '/login';
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  ConsumerState<LoginPage> createState() => _LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends ConsumerState<LoginPage> {
   final emailCtrl = TextEditingController();
   final passCtrl = TextEditingController();
-  bool loading = false;
-  bool showPassword = false;
 
   @override
   void initState() {
@@ -25,17 +88,22 @@ class _LoginPageState extends State<LoginPage> {
     passCtrl.text = 'Password123!';
   }
 
+  @override
+  void dispose() {
+    emailCtrl.dispose();
+    passCtrl.dispose();
+    super.dispose();
+  }
+
   Future<void> login() async {
-    if (emailCtrl.text.isEmpty || passCtrl.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please enter both email and password")),
-      );
+    final controller = ref.read(loginFormProvider.notifier);
+    if (!controller.validate(emailCtrl.text, passCtrl.text)) {
       return;
     }
 
-    setState(() => loading = true);
+    controller.setLoading(true);
     try {
-        await ApiService.login(emailCtrl.text.trim(), passCtrl.text.trim());
+      await ApiService.login(emailCtrl.text.trim(), passCtrl.text.trim());
       if (!mounted) return;
 
       // Success feedback
@@ -54,12 +122,16 @@ class _LoginPageState extends State<LoginPage> {
         SnackBar(content: Text("Login failed: ${e.toString()}")),
       );
     } finally {
-      if (mounted) setState(() => loading = false);
+      if (mounted) {
+        controller.setLoading(false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final formState = ref.watch(loginFormProvider);
+    final controller = ref.read(loginFormProvider.notifier);
     final textTheme = Theme.of(context).textTheme;
 
     return Scaffold(
@@ -89,10 +161,13 @@ class _LoginPageState extends State<LoginPage> {
                 // Email Field
                 TextField(
                   controller: emailCtrl,
+                  enabled: !formState.loading,
+                  onChanged: (_) => controller.clearErrors(),
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
                     labelText: "Email or Username",
                     prefixIcon: const Icon(Icons.email_outlined),
+                    errorText: formState.emailError,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -103,17 +178,19 @@ class _LoginPageState extends State<LoginPage> {
                 // Password Field
                 TextField(
                   controller: passCtrl,
-                  obscureText: !showPassword,
+                  enabled: !formState.loading,
+                  onChanged: (_) => controller.clearErrors(),
+                  obscureText: !formState.showPassword,
                   decoration: InputDecoration(
                     labelText: "Password",
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
-                      icon: Icon(showPassword
+                      icon: Icon(formState.showPassword
                           ? Icons.visibility_off
                           : Icons.visibility),
-                      onPressed: () =>
-                          setState(() => showPassword = !showPassword),
+                      onPressed: controller.toggleShowPassword,
                     ),
+                    errorText: formState.passError,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -123,7 +200,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 // Login Button
                 ElevatedButton(
-                  onPressed: loading ? null : login,
+                  onPressed: formState.loading ? null : login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFFFB300),
                     foregroundColor: Colors.black,
@@ -132,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: loading
+                  child: formState.loading
                       ? const CircularProgressIndicator(color: Colors.black)
                       : const Text("Login",
                           style: TextStyle(fontWeight: FontWeight.w600)),
@@ -141,7 +218,7 @@ class _LoginPageState extends State<LoginPage> {
 
                 // Demo Login shortcut
                 TextButton(
-                  onPressed: loading
+                  onPressed: formState.loading
                       ? null
                       : () {
                           emailCtrl.text = 'test@local';

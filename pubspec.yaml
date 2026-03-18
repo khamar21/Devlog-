@@ -25,6 +25,7 @@ dependencies:
 
   shared_preferences: ^2.3.3
   provider: ^6.1.2
+  flutter_riverpod: ^2.6.1
 
   # 🧠 Optional backend-like helpers
   lib: ^0.2.1
