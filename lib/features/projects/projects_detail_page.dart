@@ -12,7 +12,7 @@ class ProjectDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final total = 120;
+    const total = 120;
     return Scaffold(
       backgroundColor: const Color(0xFFFFFBEB),
       appBar: AppBar(
@@ -107,9 +107,9 @@ class ProjectDetailPage extends StatelessWidget {
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
+                              const Text(
                                 "$total h",
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 32,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black,
@@ -175,6 +175,7 @@ class ProjectDetailPage extends StatelessWidget {
     );
   }
 
+  // ignore: non_constant_identifier_names
   Widget _StackRow(String name, double hours, double pct, Color color) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),

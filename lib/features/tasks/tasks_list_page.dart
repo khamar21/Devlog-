@@ -61,25 +61,25 @@ class _TasksListPageState extends State<TasksListPage> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  _FilterChip('All', selectedFilter == 'All', () {
+                  _filterChip('All', selectedFilter == 'All', () {
                     setState(() => selectedFilter = 'All');
                   }, accent),
-                  _FilterChip('Today', selectedFilter == 'Today', () {
+                  _filterChip('Today', selectedFilter == 'Today', () {
                     setState(() => selectedFilter = 'Today');
                   }, accent),
-                  _FilterChip('Upcoming', selectedFilter == 'Upcoming', () {
+                  _filterChip('Upcoming', selectedFilter == 'Upcoming', () {
                     setState(() => selectedFilter = 'Upcoming');
                   }, accent),
-                  _FilterChip('Completed', selectedFilter == 'Completed', () {
+                  _filterChip('Completed', selectedFilter == 'Completed', () {
                     setState(() => selectedFilter = 'Completed');
                   }, accent),
                 ],
               ),
             ),
-            Expanded(
+            const Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.all(20),
+                physics: BouncingScrollPhysics(),
                 child: Column(
                   children: [
                     _TaskCard(
@@ -120,7 +120,7 @@ class _TasksListPageState extends State<TasksListPage> {
                       priority: "Low",
                       accent: accent,
                     ),
-                    const SizedBox(height: 80),
+                    SizedBox(height: 80),
                   ],
                 ),
               ),
@@ -131,9 +131,7 @@ class _TasksListPageState extends State<TasksListPage> {
       floatingActionButton: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(
-            colors: [accent, accentDark],
-          ),
+          gradient: const LinearGradient(colors: [accent, accentDark]),
           boxShadow: [
             BoxShadow(
               color: accent.withValues(alpha: 0.4),
@@ -173,8 +171,12 @@ class _TasksListPageState extends State<TasksListPage> {
     );
   }
 
-  Widget _FilterChip(
-      String label, bool isSelected, VoidCallback onTap, Color accent) {
+  Widget _filterChip(
+    String label,
+    bool isSelected,
+    VoidCallback onTap,
+    Color accent,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -242,8 +244,8 @@ class _TaskCardState extends State<_TaskCard> {
     final priorityColor = widget.priority == 'High'
         ? Colors.red[400]!
         : widget.priority == 'Medium'
-            ? Colors.orange[400]!
-            : Colors.blue[400]!;
+        ? Colors.orange[400]!
+        : Colors.blue[400]!;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -251,8 +253,10 @@ class _TaskCardState extends State<_TaskCard> {
       decoration: BoxDecoration(
         color: const Color(0xFFFEFCE8),
         borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: widget.accent.withValues(alpha: 0.3), width: 1.4),
+        border: Border.all(
+          color: widget.accent.withValues(alpha: 0.3),
+          width: 1.4,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -341,8 +345,11 @@ class _TaskCardState extends State<_TaskCard> {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Icon(Icons.calendar_today,
-                        size: 16, color: Colors.grey[500]),
+                    Icon(
+                      Icons.calendar_today,
+                      size: 16,
+                      color: Colors.grey[500],
+                    ),
                     const SizedBox(width: 6),
                     Text(
                       "Due: ${widget.due}",

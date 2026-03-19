@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../projects/project_detail_gold_page.dart';
@@ -339,7 +339,6 @@ class _DateSelector extends StatelessWidget {
   final Color accent;
 
   const _DateSelector({
-    super.key,
     required this.dates,
     required this.selected,
     required this.onSelect,
@@ -470,7 +469,6 @@ class _WeeklySummaryCardGold extends StatelessWidget {
   final String hoursTextOverride;
 
   const _WeeklySummaryCardGold({
-    super.key,
     required this.accent,
     required this.accentDark,
     required this.hoursTextOverride,

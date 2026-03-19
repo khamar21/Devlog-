@@ -13,8 +13,8 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final accent = const Color(0xFFF4C430);
-    final accentDark = const Color(0xFFD4A017);
+    const accent = Color(0xFFF4C430);
+    const accentDark = Color(0xFFD4A017);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -87,7 +87,7 @@ class ProfilePage extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: const LinearGradient(
                     colors: [accent, accentDark],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
@@ -145,7 +145,7 @@ class ProfilePage extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               // Stats Row
-              Row(
+              const Row(
                 children: [
                   Expanded(
                     child: _StatCard(
@@ -155,35 +155,35 @@ class ProfilePage extends StatelessWidget {
                       color: accent,
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(
                     child: _StatCard(
                       icon: Icons.folder,
                       label: "Active Projects",
                       value: "8",
-                      color: const Color(0xFF6366F1),
+                      color: Color(0xFF6366F1),
                     ),
                   ),
                 ],
               ),
               const SizedBox(height: 16),
-              Row(
+              const Row(
                 children: [
                   Expanded(
                     child: _StatCard(
                       icon: Icons.trending_up,
                       label: "Avg. Daily Hours",
                       value: "6.5h",
-                      color: const Color(0xFF22C55E),
+                      color: Color(0xFF22C55E),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  SizedBox(width: 16),
                   Expanded(
                     child: _StatCard(
                       icon: Icons.check_circle_outline,
                       label: "Tasks Done",
                       value: "127",
-                      color: const Color(0xFFF59E0B),
+                      color: Color(0xFFF59E0B),
                     ),
                   ),
                 ],
@@ -203,7 +203,7 @@ class ProfilePage extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.insights, color: accent, size: 24),
+                        const Icon(Icons.insights, color: accent, size: 24),
                         const SizedBox(width: 12),
                         Text(
                           "This Week's Insights",
@@ -216,22 +216,22 @@ class ProfilePage extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _InsightRow(
+                    const _InsightRow(
                       icon: Icons.arrow_upward,
                       text: "15% more productive than last week",
-                      color: const Color(0xFF22C55E),
+                      color: Color(0xFF22C55E),
                     ),
                     const SizedBox(height: 10),
-                    _InsightRow(
+                    const _InsightRow(
                       icon: Icons.schedule,
                       text: "Most productive: 9-11 AM",
-                      color: const Color(0xFF6366F1),
+                      color: Color(0xFF6366F1),
                     ),
                     const SizedBox(height: 10),
-                    _InsightRow(
+                    const _InsightRow(
                       icon: Icons.coffee,
                       text: "Average 2 breaks per day",
-                      color: const Color(0xFFF59E0B),
+                      color: Color(0xFFF59E0B),
                     ),
                   ],
                 ),

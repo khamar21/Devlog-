@@ -35,7 +35,7 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
   late List<Map<String, String>> tasks = [];
 
   final String _projectId = 'dynamic_project_id';
-  final String? _userId = 'dynamic_user_id';
+  final String _userId = 'dynamic_user_id';
 
   @override
   void initState() {
@@ -59,6 +59,7 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
       });
     } catch (e) {
       // keep existing UI on error
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load activity: $e')),
       );
@@ -111,9 +112,9 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
                   });
                   try {
                     // Replace with real ids from your app context
-                    final userId =
+                    const userId =
                         'CURRENT_USER_ID_OR_SESSION'; // pass real user id
-                    final projectId =
+                    const projectId =
                         'CURRENT_PROJECT_ID'; // pass real project id
                     await ApiService.logTime(
                       userId: userId,
@@ -123,10 +124,12 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
                       description: titleController.text,
                     );
                   } catch (e) {
+                    // ignore: use_build_context_synchronously
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Failed to log time: $e')),
                     );
                   }
+                  // ignore: use_build_context_synchronously
                   Navigator.pop(context);
                 }
               },
@@ -140,8 +143,8 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = const Color(0xFFF4C430);
-    final accentDark = const Color(0xFFD4A017);
+    const accent = Color(0xFFF4C430);
+    const accentDark = Color(0xFFD4A017);
     final normalizedProgress = widget.projectProgress.clamp(0.0, 1.0);
 
     return Scaffold(
@@ -245,6 +248,7 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: accent,
         elevation: 4,
+        // ignore: sort_child_properties_last
         child: const Icon(Icons.add, color: Colors.white),
         onPressed: _addNewTask,
       ),
