@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'features/dashboard/dashboard_page.dart';
 import 'features/tracking/time_entry_page.dart';
 import 'features/profile/profile_page.dart';
@@ -10,7 +11,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   ApiService.useProd();
-  runApp(const DevLogProApp());
+  runApp(const ProviderScope(child: DevLogProApp()));
 }
 
 class DevLogProApp extends StatelessWidget {

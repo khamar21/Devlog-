@@ -6,8 +6,7 @@ import 'dart:io';
 
 void main() async {
   final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 3000);
-  print('Mock server listening on http://localhost:3000');
-
+  stderr.writeln('Mock server listening on http://localhost:3000');
   await for (final req in server) {
     final path = req.uri.path;
     final method = req.method;

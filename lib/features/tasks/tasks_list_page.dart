@@ -18,8 +18,8 @@ class _TasksListPageState extends State<TasksListPage> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = const Color(0xFFF4C430);
-    final accentDark = const Color(0xFFD4A017);
+    const accent = Color(0xFFF4C430);
+    const accentDark = Color(0xFFD4A017);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -61,25 +61,25 @@ class _TasksListPageState extends State<TasksListPage> {
               child: ListView(
                 scrollDirection: Axis.horizontal,
                 children: [
-                  _FilterChip('All', selectedFilter == 'All', () {
+                  _filterChip('All', selectedFilter == 'All', () {
                     setState(() => selectedFilter = 'All');
                   }, accent),
-                  _FilterChip('Today', selectedFilter == 'Today', () {
+                  _filterChip('Today', selectedFilter == 'Today', () {
                     setState(() => selectedFilter = 'Today');
                   }, accent),
-                  _FilterChip('Upcoming', selectedFilter == 'Upcoming', () {
+                  _filterChip('Upcoming', selectedFilter == 'Upcoming', () {
                     setState(() => selectedFilter = 'Upcoming');
                   }, accent),
-                  _FilterChip('Completed', selectedFilter == 'Completed', () {
+                  _filterChip('Completed', selectedFilter == 'Completed', () {
                     setState(() => selectedFilter = 'Completed');
                   }, accent),
                 ],
               ),
             ),
-            Expanded(
+            const Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.all(20),
+                physics: BouncingScrollPhysics(),
                 child: Column(
                   children: [
                     _TaskCard(
@@ -120,7 +120,7 @@ class _TasksListPageState extends State<TasksListPage> {
                       priority: "Low",
                       accent: accent,
                     ),
-                    const SizedBox(height: 80),
+                    SizedBox(height: 80),
                   ],
                 ),
               ),
@@ -131,12 +131,10 @@ class _TasksListPageState extends State<TasksListPage> {
       floatingActionButton: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          gradient: LinearGradient(
-            colors: [accent, accentDark],
-          ),
+          gradient: const LinearGradient(colors: [accent, accentDark]),
           boxShadow: [
             BoxShadow(
-              color: accent.withOpacity(0.4),
+              color: accent.withValues(alpha: 0.4),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -173,8 +171,12 @@ class _TasksListPageState extends State<TasksListPage> {
     );
   }
 
-  Widget _FilterChip(
-      String label, bool isSelected, VoidCallback onTap, Color accent) {
+  Widget _filterChip(
+    String label,
+    bool isSelected,
+    VoidCallback onTap,
+    Color accent,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -185,13 +187,13 @@ class _TasksListPageState extends State<TasksListPage> {
           color: isSelected ? accent : const Color(0xFFFEFCE8),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected ? accent : accent.withOpacity(0.3),
+            color: isSelected ? accent : accent.withValues(alpha: 0.3),
             width: 1.5,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: accent.withOpacity(0.3),
+                    color: accent.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -242,8 +244,8 @@ class _TaskCardState extends State<_TaskCard> {
     final priorityColor = widget.priority == 'High'
         ? Colors.red[400]!
         : widget.priority == 'Medium'
-            ? Colors.orange[400]!
-            : Colors.blue[400]!;
+        ? Colors.orange[400]!
+        : Colors.blue[400]!;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -251,10 +253,13 @@ class _TaskCardState extends State<_TaskCard> {
       decoration: BoxDecoration(
         color: const Color(0xFFFEFCE8),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: widget.accent.withOpacity(0.3), width: 1.4),
+        border: Border.all(
+          color: widget.accent.withValues(alpha: 0.3),
+          width: 1.4,
+        ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -298,7 +303,7 @@ class _TaskCardState extends State<_TaskCard> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: priorityColor.withOpacity(0.1),
+                  color: priorityColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -340,8 +345,11 @@ class _TaskCardState extends State<_TaskCard> {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Icon(Icons.calendar_today,
-                        size: 16, color: Colors.grey[500]),
+                    Icon(
+                      Icons.calendar_today,
+                      size: 16,
+                      color: Colors.grey[500],
+                    ),
                     const SizedBox(width: 6),
                     Text(
                       "Due: ${widget.due}",

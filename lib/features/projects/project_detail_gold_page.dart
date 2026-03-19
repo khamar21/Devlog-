@@ -11,26 +11,31 @@ class ProjectDetailGoldPage extends StatefulWidget {
     super.key,
     this.projectProgress = 0.75,
     this.progressLabel = 'Project Progress',
+    this.projectName = 'Project',
+    this.projectDue = 'TBD',
+    this.projectTags = const ['General'],
+    this.totalHours = 0,
+    this.totalTasks = 0,
   });
   static const routeName = '/project-detail-gold';
 
   final double projectProgress;
   final String progressLabel;
+  final String projectName;
+  final String projectDue;
+  final List<String> projectTags;
+  final int totalHours;
+  final int totalTasks;
 
   @override
   State<ProjectDetailGoldPage> createState() => _ProjectDetailGoldPageState();
 }
 
 class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
-  final List<Map<String, String>> tasks = [
-    {"title": "Authentication endpoints finalized", "time": "Today, 10:30 AM"},
-    {"title": "Documentation updated", "time": "Yesterday, 4:15 PM"},
-    {"title": "API deployed to staging", "time": "2 days ago"},
-  ];
+  late List<Map<String, String>> tasks = [];
 
-  // TODO: receive/set actual projectId and userId via constructor/route
-  final String _projectId = 'CURRENT_PROJECT_ID';
-  final String? _userId = 'CURRENT_USER_ID';
+  final String _projectId = 'dynamic_project_id';
+  final String _userId = 'dynamic_user_id';
 
   @override
   void initState() {
@@ -54,6 +59,7 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
       });
     } catch (e) {
       // keep existing UI on error
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to load activity: $e')),
       );
@@ -106,9 +112,9 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
                   });
                   try {
                     // Replace with real ids from your app context
-                    final userId =
+                    const userId =
                         'CURRENT_USER_ID_OR_SESSION'; // pass real user id
-                    final projectId =
+                    const projectId =
                         'CURRENT_PROJECT_ID'; // pass real project id
                     await ApiService.logTime(
                       userId: userId,
@@ -118,10 +124,12 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
                       description: titleController.text,
                     );
                   } catch (e) {
+                    // ignore: use_build_context_synchronously
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Failed to log time: $e')),
                     );
                   }
+                  // ignore: use_build_context_synchronously
                   Navigator.pop(context);
                 }
               },
@@ -135,8 +143,8 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
 
   @override
   Widget build(BuildContext context) {
-    final accent = const Color(0xFFF4C430);
-    final accentDark = const Color(0xFFD4A017);
+    const accent = Color(0xFFF4C430);
+    const accentDark = Color(0xFFD4A017);
     final normalizedProgress = widget.projectProgress.clamp(0.0, 1.0);
 
     return Scaffold(
@@ -181,6 +189,9 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
                 accent: accent,
                 accentDark: accentDark,
                 progress: normalizedProgress,
+                projectName: widget.projectName,
+                projectDue: widget.projectDue,
+                projectTags: widget.projectTags,
               ),
               const SizedBox(height: 24),
               // Progress chart
@@ -198,7 +209,7 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
                     child: _StatCard(
                       icon: Icons.timer_outlined,
                       label: "Total Hours",
-                      value: "120h",
+                      value: "${widget.totalHours}h",
                       color: accent,
                     ),
                   ),
@@ -207,7 +218,7 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
                     child: _StatCard(
                       icon: Icons.task_alt,
                       label: "Tasks Done",
-                      value: "${tasks.length}/17",
+                      value: "${tasks.length}/${widget.totalTasks}",
                       color: const Color(0xFF22C55E),
                     ),
                   ),
@@ -237,6 +248,7 @@ class _ProjectDetailGoldPageState extends State<ProjectDetailGoldPage> {
       floatingActionButton: FloatingActionButton(
         backgroundColor: accent,
         elevation: 4,
+        // ignore: sort_child_properties_last
         child: const Icon(Icons.add, color: Colors.white),
         onPressed: _addNewTask,
       ),
@@ -277,11 +289,17 @@ class _ProjectHeaderCard extends StatelessWidget {
   final Color accent;
   final Color accentDark;
   final double progress;
+  final String projectName;
+  final String projectDue;
+  final List<String> projectTags;
 
   const _ProjectHeaderCard({
     required this.accent,
     required this.accentDark,
     required this.progress,
+    required this.projectName,
+    required this.projectDue,
+    required this.projectTags,
   });
 
   @override
@@ -297,7 +315,7 @@ class _ProjectHeaderCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: accent.withOpacity(0.35),
+            color: accent.withValues(alpha: 0.35),
             blurRadius: 24,
             offset: const Offset(0, 8),
           ),
@@ -312,7 +330,7 @@ class _ProjectHeaderCard extends StatelessWidget {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.3),
+                  color: Colors.white.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.folder_open,
@@ -324,7 +342,7 @@ class _ProjectHeaderCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Phoenix API Refactor",
+                      projectName,
                       style: GoogleFonts.inter(
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
@@ -333,11 +351,11 @@ class _ProjectHeaderCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      "Due: March 15, 2024",
+                      "Due: $projectDue",
                       style: GoogleFonts.inter(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
-                        color: Colors.white.withOpacity(0.85),
+                        color: Colors.white.withValues(alpha: 0.85),
                       ),
                     ),
                   ],
@@ -348,9 +366,11 @@ class _ProjectHeaderCard extends StatelessWidget {
           const SizedBox(height: 20),
           Row(
             children: [
-              _ChipTag(label: "Backend", color: Colors.white.withOpacity(0.3)),
-              const SizedBox(width: 8),
-              _ChipTag(label: "API", color: Colors.white.withOpacity(0.3)),
+              ...projectTags.map((tag) => Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: _ChipTag(
+                        label: tag, color: Colors.white.withValues(alpha: 0.3)),
+                  )),
             ],
           ),
           const SizedBox(height: 16),
@@ -381,7 +401,7 @@ class _ProjectHeaderCard extends StatelessWidget {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 8,
-              backgroundColor: Colors.white.withOpacity(0.3),
+              backgroundColor: Colors.white.withValues(alpha: 0.3),
               valueColor: const AlwaysStoppedAnimation(Colors.white),
             ),
           ),
@@ -446,7 +466,7 @@ class _ProgressChart extends StatelessWidget {
                 value: progress,
                 strokeWidth: 14,
                 valueColor: AlwaysStoppedAnimation(accentDark),
-                backgroundColor: accent.withOpacity(0.15),
+                backgroundColor: accent.withValues(alpha: 0.15),
                 strokeCap: StrokeCap.round,
               ),
             ),
@@ -500,10 +520,10 @@ class _StatCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withOpacity(0.3), width: 1.5),
+        border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -515,7 +535,7 @@ class _StatCard extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 24),
@@ -564,7 +584,7 @@ class _TimelineRow extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: color.withOpacity(0.12),
+            color: color.withValues(alpha: 0.12),
             shape: BoxShape.circle,
           ),
           child: Icon(icon, color: color, size: 20),

@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../projects/project_detail_gold_page.dart';
 import '../tasks/tasks_list_page.dart';
@@ -6,44 +7,148 @@ import '../profile/profile_page.dart';
 import '../../widgets/gold_bottom_nav.dart';
 import '../../data/api_service.dart';
 
-class DashboardPage extends StatefulWidget {
+class DashboardPage extends ConsumerStatefulWidget {
   const DashboardPage({super.key});
   static const routeName = '/dashboard';
 
   @override
-  State<DashboardPage> createState() => _DashboardPageState();
+  ConsumerState<DashboardPage> createState() => _DashboardPageState();
 }
 
-class _TaskCard extends StatefulWidget {
+@immutable
+class DashboardTask {
+  const DashboardTask({
+    required this.hours,
+    required this.minutes,
+    required this.title,
+    required this.due,
+    this.checked = false,
+  });
+
+  final int hours;
+  final int minutes;
+  final String title;
+  final String due;
+  final bool checked;
+
+  DashboardTask copyWith({bool? checked}) {
+    return DashboardTask(
+      hours: hours,
+      minutes: minutes,
+      title: title,
+      due: due,
+      checked: checked ?? this.checked,
+    );
+  }
+}
+
+@immutable
+class DashboardState {
+  const DashboardState({
+    this.selectedIndex = 0,
+    this.weeklyHours,
+    this.loadingWeekly = false,
+    this.weeklyError,
+    this.tasks = const [
+      DashboardTask(
+        hours: 2,
+        minutes: 12,
+        title: 'Complete Project Proposal',
+        due: '2024-03-15',
+        checked: true,
+      ),
+      DashboardTask(
+        hours: 1,
+        minutes: 45,
+        title: 'Refactor Authentication Module',
+        due: '2024-03-17',
+      ),
+    ],
+  });
+
+  final int selectedIndex;
+  final int? weeklyHours;
+  final bool loadingWeekly;
+  final String? weeklyError;
+  final List<DashboardTask> tasks;
+
+  DashboardState copyWith({
+    int? selectedIndex,
+    int? weeklyHours,
+    bool setWeeklyHoursNull = false,
+    bool? loadingWeekly,
+    String? weeklyError,
+    bool clearWeeklyError = false,
+    List<DashboardTask>? tasks,
+  }) {
+    return DashboardState(
+      selectedIndex: selectedIndex ?? this.selectedIndex,
+      weeklyHours:
+          setWeeklyHoursNull ? null : (weeklyHours ?? this.weeklyHours),
+      loadingWeekly: loadingWeekly ?? this.loadingWeekly,
+      weeklyError: clearWeeklyError ? null : (weeklyError ?? this.weeklyError),
+      tasks: tasks ?? this.tasks,
+    );
+  }
+}
+
+class DashboardController extends StateNotifier<DashboardState> {
+  DashboardController() : super(const DashboardState());
+
+  void setSelectedIndex(int index) {
+    state = state.copyWith(selectedIndex: index);
+  }
+
+  Future<void> loadWeekly(String userId) async {
+    state = state.copyWith(loadingWeekly: true, clearWeeklyError: true);
+    try {
+      final report = await ApiService.getWeeklyReport(userId);
+      state = state.copyWith(
+        loadingWeekly: false,
+        weeklyHours: (report['totalHours'] as num?)?.toInt(),
+      );
+    } catch (e) {
+      state = state.copyWith(
+        loadingWeekly: false,
+        setWeeklyHoursNull: true,
+        weeklyError: e.toString(),
+      );
+    }
+  }
+
+  void setTaskChecked(int index, bool checked) {
+    final nextTasks = [...state.tasks];
+    if (index < 0 || index >= nextTasks.length) {
+      return;
+    }
+    nextTasks[index] = nextTasks[index].copyWith(checked: checked);
+    state = state.copyWith(tasks: nextTasks);
+  }
+}
+
+final dashboardProvider =
+    StateNotifierProvider.autoDispose<DashboardController, DashboardState>(
+  (ref) => DashboardController(),
+);
+
+class _TaskCard extends StatelessWidget {
   final int hours;
   final int minutes;
   final String title;
   final String due;
   final Color accent;
-  final bool initialChecked;
+  final bool checked;
+  final ValueChanged<bool> onCheckedChanged;
 
   const _TaskCard({
-    Key? key,
     required this.hours,
     required this.minutes,
     required this.title,
     required this.due,
     required this.accent,
-    this.initialChecked = false,
-  }) : super(key: key);
-
-  @override
-  State<_TaskCard> createState() => _TaskCardState();
-}
-
-class _TaskCardState extends State<_TaskCard> {
-  late bool _checked;
-
-  @override
-  void initState() {
-    super.initState();
-    _checked = widget.initialChecked;
-  }
+    required this.checked,
+    required this.onCheckedChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -54,20 +159,16 @@ class _TaskCardState extends State<_TaskCard> {
         color: Colors.grey[100],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: widget.accent.withOpacity(0.2),
+          color: accent.withValues(alpha: 0.2),
           width: 1.5,
         ),
       ),
       child: Row(
         children: [
           Checkbox(
-            value: _checked,
-            activeColor: widget.accent,
-            onChanged: (val) {
-              setState(() {
-                _checked = val ?? false;
-              });
-            },
+            value: checked,
+            activeColor: accent,
+            onChanged: (val) => onCheckedChanged(val ?? false),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -75,30 +176,31 @@ class _TaskCardState extends State<_TaskCard> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  widget.title,
+                  title,
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     color: const Color(0xFF0F172A),
-                    decoration: _checked ? TextDecoration.lineThrough : null,
+                    decoration: checked ? TextDecoration.lineThrough : null,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(Icons.access_time, size: 16, color: widget.accent),
+                    Icon(Icons.access_time, size: 16, color: accent),
                     const SizedBox(width: 4),
                     Text(
-                      "${widget.hours}h ${widget.minutes}m",
+                      '${hours}h ${minutes}m',
                       style: textTheme.bodySmall?.copyWith(
-                        color: widget.accent,
+                        color: accent,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
                     const SizedBox(width: 16),
-                    Icon(Icons.calendar_today, size: 16, color: Colors.grey),
+                    const Icon(Icons.calendar_today,
+                        size: 16, color: Colors.grey),
                     const SizedBox(width: 4),
                     Text(
-                      widget.due,
+                      due,
                       style: textTheme.bodySmall?.copyWith(
                         color: Colors.grey[600],
                       ),
@@ -114,37 +216,27 @@ class _TaskCardState extends State<_TaskCard> {
   }
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _DashboardPageState extends ConsumerState<DashboardPage> {
   final List<DateTime> _dates =
       List.generate(7, (i) => DateTime.now().add(Duration(days: i)));
 
-  int _selectedIndex = 0;
-  int? _weeklyHours;
-
-  // 🔑 TEMP user id (replace with logged-in user id)
-  final String userId = "1";
+  final String userId = '1';
 
   @override
   void initState() {
     super.initState();
-    _loadWeekly();
-  }
-
-  Future<void> _loadWeekly() async {
-    try {
-      final report = await ApiService.getWeeklyReport(userId);
-      setState(() {
-        _weeklyHours = (report['totalHours'] as num?)?.toInt();
-      });
-    } catch (e) {
-      debugPrint("Weekly report error: $e");
-    }
+    Future.microtask(() {
+      ref.read(dashboardProvider.notifier).loadWeekly(userId);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final accent = const Color(0xFFF4C430);
-    final accentDark = const Color(0xFFD4A017);
+    final state = ref.watch(dashboardProvider);
+    final controller = ref.read(dashboardProvider.notifier);
+
+    const accent = Color(0xFFF4C430);
+    const accentDark = Color(0xFFD4A017);
     final textTheme = GoogleFonts.interTextTheme();
 
     return Scaffold(
@@ -154,7 +246,7 @@ class _DashboardPageState extends State<DashboardPage> {
         elevation: 0,
         titleSpacing: 20,
         title: Text(
-          "Dashboard",
+          'Dashboard',
           style: textTheme.titleLarge?.copyWith(
             fontWeight: FontWeight.w700,
             color: const Color(0xFF0F172A),
@@ -166,58 +258,53 @@ class _DashboardPageState extends State<DashboardPage> {
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              _ProfileCard(accent: accent, accentDark: accentDark),
+              const _ProfileCard(accent: accent, accentDark: accentDark),
               const SizedBox(height: 24),
-
               _DateSelector(
                 dates: _dates,
-                selected: _selectedIndex,
-                onSelect: (i) => setState(() => _selectedIndex = i),
+                selected: state.selectedIndex,
+                onSelect: controller.setSelectedIndex,
                 accent: accent,
               ),
-
               const SizedBox(height: 24),
-
               _WeeklySummaryCardGold(
                 accent: accent,
                 accentDark: accentDark,
-                hoursTextOverride:
-                    _weeklyHours != null ? "${_weeklyHours}h" : "--",
+                hoursTextOverride: state.loadingWeekly
+                    ? '...'
+                    : state.weeklyHours != null
+                        ? '${state.weeklyHours}h'
+                        : '--',
               ),
-
               const SizedBox(height: 32),
-
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  "My Tasks",
+                  'My Tasks',
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: const Color(0xFF0F172A),
                   ),
                 ),
               ),
-
               const SizedBox(height: 20),
-
-              _TaskCard(
-                hours: 2,
-                minutes: 12,
-                title: "Complete Project Proposal",
-                due: "2024-03-15",
-                accent: accent,
-                initialChecked: true,
-              ),
-
-              const SizedBox(height: 16),
-
-              _TaskCard(
-                hours: 1,
-                minutes: 45,
-                title: "Refactor Authentication Module",
-                due: "2024-03-17",
-                accent: accent,
-              ),
+              ...List.generate(state.tasks.length, (index) {
+                final task = state.tasks[index];
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: _TaskCard(
+                    hours: task.hours,
+                    minutes: task.minutes,
+                    title: task.title,
+                    due: task.due,
+                    accent: accent,
+                    checked: task.checked,
+                    onCheckedChanged: (checked) {
+                      controller.setTaskChecked(index, checked);
+                    },
+                  ),
+                );
+              }),
             ],
           ),
         ),
@@ -225,10 +312,10 @@ class _DashboardPageState extends State<DashboardPage> {
       bottomNavigationBar: GoldBottomNav(
         accent: accent,
         items: const [
-          GoldNavItem(icon: Icons.home_rounded, label: "Dashboard"),
-          GoldNavItem(icon: Icons.folder_open, label: "Projects"),
-          GoldNavItem(icon: Icons.list_alt_rounded, label: "My Task"),
-          GoldNavItem(icon: Icons.person_rounded, label: "Profile"),
+          GoldNavItem(icon: Icons.home_rounded, label: 'Dashboard'),
+          GoldNavItem(icon: Icons.folder_open, label: 'Projects'),
+          GoldNavItem(icon: Icons.list_alt_rounded, label: 'My Task'),
+          GoldNavItem(icon: Icons.person_rounded, label: 'Profile'),
         ],
         current: 0,
         onTap: (i) {
@@ -252,12 +339,11 @@ class _DateSelector extends StatelessWidget {
   final Color accent;
 
   const _DateSelector({
-    Key? key,
     required this.dates,
     required this.selected,
     required this.onSelect,
     required this.accent,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -287,7 +373,7 @@ class _DateSelector extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    "${date.day}/${date.month}",
+                    '${date.day}/${date.month}',
                     style: textTheme.bodyMedium?.copyWith(
                       color: isSelected ? Colors.white : Colors.black87,
                       fontWeight: FontWeight.w600,
@@ -295,7 +381,15 @@ class _DateSelector extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"][date.weekday - 1],
+                    [
+                      'Mon',
+                      'Tue',
+                      'Wed',
+                      'Thu',
+                      'Fri',
+                      'Sat',
+                      'Sun'
+                    ][date.weekday - 1],
                     style: textTheme.bodySmall?.copyWith(
                       color: isSelected ? Colors.white70 : Colors.grey[700],
                     ),
@@ -310,7 +404,7 @@ class _DateSelector extends StatelessWidget {
   }
 }
 
-class   _ProfileCard extends StatelessWidget {
+class _ProfileCard extends StatelessWidget {
   const _ProfileCard({
     required this.accent,
     required this.accentDark,
@@ -330,7 +424,7 @@ class   _ProfileCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: accentDark.withOpacity(0.4),
+            color: accentDark.withValues(alpha: 0.4),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -338,16 +432,17 @@ class   _ProfileCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CircleAvatar(
+          const CircleAvatar(
             radius: 30,
-            backgroundImage: AssetImage('assets/images/profile_placeholder.png'),
+            backgroundImage:
+                AssetImage('assets/images/profile_placeholder.png'),
           ),
           const SizedBox(width: 16),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Hello, Jane Doe",
+                'Hello, Jane Doe',
                 style: textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: Colors.white,
@@ -355,7 +450,7 @@ class   _ProfileCard extends StatelessWidget {
               ),
               const SizedBox(height: 4),
               Text(
-                "Welcome back!",
+                'Welcome back!',
                 style: textTheme.bodyMedium?.copyWith(
                   color: Colors.white70,
                 ),
@@ -374,11 +469,10 @@ class _WeeklySummaryCardGold extends StatelessWidget {
   final String hoursTextOverride;
 
   const _WeeklySummaryCardGold({
-    Key? key,
     required this.accent,
     required this.accentDark,
     required this.hoursTextOverride,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -386,9 +480,9 @@ class _WeeklySummaryCardGold extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: accent.withOpacity(0.15),
+        color: accent.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: accentDark.withOpacity(0.2), width: 1.5),
+        border: Border.all(color: accentDark.withValues(alpha: 0.2), width: 1.5),
       ),
       child: Row(
         children: [
@@ -399,7 +493,7 @@ class _WeeklySummaryCardGold extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Weekly Summary",
+                  'Weekly Summary',
                   style: textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
                     color: accentDark,
@@ -407,9 +501,9 @@ class _WeeklySummaryCardGold extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "Total hours logged this week",
+                  'Total hours logged this week',
                   style: textTheme.bodyMedium?.copyWith(
-                    color: accentDark.withOpacity(0.7),
+                    color: accentDark.withValues(alpha: 0.7),
                   ),
                 ),
               ],
